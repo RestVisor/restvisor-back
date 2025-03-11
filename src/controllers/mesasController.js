@@ -13,4 +13,26 @@ const updateMesa = async (req, res) => {
     res.json(data);
 };
 
-module.exports = { getMesas, updateMesa };
+// Agregar una nueva mesa
+const createMesa = async (req, res) => {
+    const { numero, estado } = req.body;
+
+    if (!numero || !estado) {
+        return res.status(400).json({ error: "El número y estado de la mesa son obligatorios" });
+    }
+
+    const { data, error } = await sql
+        .from("mesas")
+        .insert([{ numero, estado }])
+        .select()
+        .single();
+
+    if (error) {
+        console.error("Error al crear mesa:", error.message);
+        return res.status(500).json({ error: error.message });
+    }
+
+    res.json({ message: "Mesa creada con éxito", mesa: data });
+};
+
+module.exports = { getMesas, updateMesa, createMesa };
