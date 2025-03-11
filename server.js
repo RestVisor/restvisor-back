@@ -1,17 +1,12 @@
-// server.js
-import dotenv from "dotenv";
-dotenv.config();
-import express from "express";
-import cors from "cors";
-import routes from "./src/routes/routes.js";
-import { sql } from "./src/config/db.js";
-
+require("dotenv").config();
+const express = require("express");
+const cors = require("cors");
 const app = express();
+const routes = require("./src/routes");
 
 app.use(express.json());
 app.use(cors());
 
-// Rutas del backend
 app.use("/api", routes);
 
 const PORT = process.env.PORT || 3000;
