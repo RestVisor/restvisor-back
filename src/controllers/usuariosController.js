@@ -9,15 +9,15 @@ const register = async (req, res) => {
             password: '[REDACTED]' // Don't log the actual password
         });
 
-        const { nombre, email, password, rol } = req.body;
+        const { name, email, password, role } = req.body;
 
         // Validate required fields
-        if (!nombre || !email || !password || !rol) {
+        if (!name || !email || !password || !role) {
             console.log('Registration failed - Missing required fields:', {
-                hasName: !!nombre,
+                hasName: !!name,
                 hasEmail: !!email,
                 hasPassword: !!password,
-                hasRole: !!rol
+                hasRole: !!role
             });
             return res.status(400).json({ error: "All fields are required" });
         }
@@ -37,8 +37,8 @@ const register = async (req, res) => {
 
         // Validate role
         const validRoles = ['waiter', 'chef', 'admin'];
-        if (!validRoles.includes(rol)) {
-            console.log('Registration failed - Invalid role:', rol);
+        if (!validRoles.includes(role)) {
+            console.log('Registration failed - Invalid role:', role);
             return res.status(400).json({ error: "Invalid role" });
         }
 
@@ -65,19 +65,19 @@ const register = async (req, res) => {
 
         // Insert new user
         console.log('Attempting to insert new user:', {
-            nombre,
+            name,
             email,
-            rol,
+            role,
             hashedPassword: '[REDACTED]'
         });
 
         const { data: newUser, error: insertError } = await sql
             .from("users")
             .insert([{ 
-                nombre, 
+                name, 
                 email, 
                 password: hashedPassword, 
-                rol 
+                role 
             }])
             .select()
             .single();
@@ -101,13 +101,13 @@ const register = async (req, res) => {
         console.log('User created successfully:', {
             id: newUser.id,
             email: newUser.email,
-            rol: newUser.rol
+            role: newUser.role
         });
 
         // Create JWT token
         console.log('Generating JWT token...');
         const token = jwt.sign(
-            { id: newUser.id, email: newUser.email, rol: newUser.rol },
+            { id: newUser.id, email: newUser.email, role: newUser.role },
             process.env.JWT_SECRET,
             { expiresIn: "1h" }
         );
@@ -162,9 +162,9 @@ const login = async (req, res) => {
             return res.status(401).json({ error: "Invalid credentials" });
         }
 
-        console.log('Login successful:', { email: user.email, rol: user.rol });
+        console.log('Login successful:', { email: user.email, role: user.role });
         const token = jwt.sign(
-            { id: user.id, email: user.email, rol: user.rol },
+            { id: user.id, email: user.email, role: user.role },
             process.env.JWT_SECRET,
             { expiresIn: "1h" }
         );

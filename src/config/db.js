@@ -22,10 +22,10 @@ const sql = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
                 console.error(`
                     CREATE TABLE users (
                         id SERIAL PRIMARY KEY,
-                        nombre TEXT NOT NULL,
+                        name TEXT NOT NULL,
                         email TEXT UNIQUE NOT NULL,
                         password TEXT NOT NULL,
-                        rol TEXT NOT NULL CHECK (rol IN ('waiter', 'chef', 'admin'))
+                        role TEXT NOT NULL CHECK (role IN ('waiter', 'chef', 'admin'))
                     );
                 `);
             }
@@ -48,10 +48,10 @@ const sql = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
         // Log the table structure
         console.log('Table structure verification:', {
             hasIdColumn: 'id' in (columns?.[0] || {}),
-            hasNombreColumn: 'nombre' in (columns?.[0] || {}),
+            hasNameColumn: 'name' in (columns?.[0] || {}),
             hasEmailColumn: 'email' in (columns?.[0] || {}),
             hasPasswordColumn: 'password' in (columns?.[0] || {}),
-            hasRolColumn: 'rol' in (columns?.[0] || {})
+            hasRoleColumn: 'role' in (columns?.[0] || {})
         });
 
     } catch (error) {
