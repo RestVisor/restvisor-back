@@ -6,7 +6,7 @@ const pedidosRoutes = require("./pedidosRoutes");
 const mesasRoutes = require("./mesasRoutes");
 
 router.use("/usuarios", usuariosRoutes);
-router.use("/pedidos", pedidosRoutes);
-router.use("/mesas", mesasRoutes);
+router.use("/orders", pedidosRoutes);
+router.use("/tables", mesasRoutes);
 
 module.exports = router;
