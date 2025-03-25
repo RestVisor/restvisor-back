@@ -7,6 +7,7 @@ const getPedidos = async (req, res) => {
 };
 
 const createPedido = async (req, res) => {
+    console.log(req.body);
     const { id, tableNumber, status, created_at } = req.body;
     const { data, error } = await sql.from("orders").insert([{ id, tableNumber, status, created_at }]);
     if (error) return res.status(500).json({ error: error.message });
