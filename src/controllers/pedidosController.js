@@ -7,8 +7,8 @@ const getPedidos = async (req, res) => {
 };
 
 const createPedido = async (req, res) => {
-    const { mesa_id, productos } = req.body;
-    const { data, error } = await sql.from("orders").insert([{ mesa_id, estado: "pendiente" }]);
+    const { id, tableNumber, status, created_at } = req.body;
+    const { data, error } = await sql.from("orders").insert([{ id, tableNumber, status, created_at }]);
     if (error) return res.status(500).json({ error: error.message });
     res.json(data);
 };
