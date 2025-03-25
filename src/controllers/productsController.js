@@ -13,6 +13,16 @@ const createProducts = async (req, res) => {
     res.json(data);
 };
 
+const updateProduct = async (req, res) => {
+    const { id } = req.params;
+    const { name, description, price, category } = req.body;
+
+    const { error } = await sql.from("products").update({ name, description, price, category }).eq("id", id);
+    if (error) return res.status(500).json({ error: error.message });
+
+    res.json({ message: "Product updated successfully" });
+};
+
 const deleteProduct = async (req, res) => {
     const { id } = req.params;
     const { data, error } = await sql.from("products").delete().eq("id", id);
@@ -27,4 +37,4 @@ const deleteProduct = async (req, res) => {
     res.status(200).json({ message: "Product deleted successfully" });
   };
 
-module.exports = { getProducts, createProducts, deleteProduct };
+module.exports = { getProducts, createProducts, updateProduct, deleteProduct };
