@@ -25,16 +25,15 @@ const updateProduct = async (req, res) => {
 
 const deleteProduct = async (req, res) => {
     const { id } = req.params;
-    const { data, error } = await sql.from("products").delete().eq("id", id);
+    
+    // Intentar eliminar el producto
+    const { error } = await sql.from("products").delete().eq("id", id);
+    
     if (error) {
-      return res.status(500).json({ error: error.message });
+        return res.status(500).json({ error: error.message });
     }
-  
-    if (data.length === 0) {
-      return res.status(404).json({ error: "Product not found" });
-    }
-  
+
     res.status(200).json({ message: "Product deleted successfully" });
-  };
+};
 
 module.exports = { getProducts, createProducts, updateProduct, deleteProduct };
