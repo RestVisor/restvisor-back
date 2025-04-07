@@ -186,4 +186,28 @@ const login = async (req, res) => {
     }
 };
 
-module.exports = { register, login };
+const validateToken = async (req, res) => {
+    try {
+        // The token is already validated by the authMiddleware
+        // We just need to return the user data
+        const userId = req.user.id;
+        
+        const { data: user, error: userError } = await sql
+            .from("users")
+            .select("id, name, email, role")
+            .eq("id", userId)
+            .single();
+            
+        if (userError || !user) {
+            console.error('Token validation error - User not found:', userError);
+            return res.status(401).json({ error: "User not found" });
+        }
+        
+        res.json({ user });
+    } catch (error) {
+        console.error('Unexpected token validation error:', error);
+        res.status(500).json({ error: "Internal server error" });
+    }
+};
+
+module.exports = { register, login, validateToken };
