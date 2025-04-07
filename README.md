@@ -77,11 +77,11 @@ The server will start on http://localhost:3000
 ### Users
 
 #### Get all users
-- **GET** `/api/usuarios`
+- **GET** `/api/users`
 - Requires authentication
 
 #### Get user by ID
-- **GET** `/api/usuarios/:id`
+- **GET** `/api/users/:id`
 - Requires authentication
 
 ## Project Structure
