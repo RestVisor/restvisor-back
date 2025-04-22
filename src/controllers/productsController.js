@@ -7,17 +7,17 @@ const getProducts = async (req, res) => {
 };
 
 const createProducts = async (req, res) => {
-    const { id, name, description, price, category } = req.body;
-    const { data, error } = await sql.from("products").insert([{ id, name, description, price, category }]);
+    const { id, name, description, price, category, stock } = req.body;
+    const { data, error } = await sql.from("products").insert([{ id, name, description, price, category, stock }]);
     if (error) return res.status(500).json({ error: error.message });
     res.json(data);
 };
 
 const updateProduct = async (req, res) => {
     const { id } = req.params;
-    const { name, description, price, category } = req.body;
+    const { name, description, price, category, stock } = req.body;
 
-    const { error } = await sql.from("products").update({ name, description, price, category }).eq("id", id);
+    const { error } = await sql.from("products").update({ name, description, price, category, stock }).eq("id", id);
     if (error) return res.status(500).json({ error: error.message });
 
     res.json({ message: "Product updated successfully" });
