@@ -7,10 +7,10 @@ const getPedidos = async (req, res) => {
 };
 
 const getPedidosByMesa = async (req, res) => {
-    const { mesa_id } = req.params;
+    const { numero_mesa } = req.params;
 
     try {
-        // Primero obtenemos todos los pedidos de la mesa
+        // Primero obtenemos todos los pedidos de la mesa por su número
         const { data: pedidos, error: pedidosError } = await sql
             .from("orders")
             .select(`
@@ -20,19 +20,20 @@ const getPedidosByMesa = async (req, res) => {
                     products (*)
                 )
             `)
-            .eq("tableNumber", mesa_id);
+            .eq("tableNumber", numero_mesa)
+            .order('created_at', { ascending: false }); // Ordenamos por fecha de creación, más recientes primero
 
         if (pedidosError) throw pedidosError;
 
         if (!pedidos || pedidos.length === 0) {
             return res.status(404).json({
-                mensaje: `No se encontraron pedidos para la mesa ${mesa_id}`
+                mensaje: `No se encontraron pedidos para la mesa número ${numero_mesa}`
             });
         }
 
         res.json({
             mensaje: "Pedidos encontrados",
-            mesa_id,
+            numero_mesa,
             pedidos
         });
 

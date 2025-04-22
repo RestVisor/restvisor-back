@@ -5,6 +5,6 @@ const authMiddleware = require("../middlewares/authMiddleware"); // Importar el 
 
 router.get("/", authMiddleware, getPedidos);
 router.post("/", authMiddleware, createPedido);
-router.get("/mesa/:mesa_id", authMiddleware, getPedidosByMesa);
+router.get("/mesa/numero/:numero_mesa", getPedidosByMesa);
 
 module.exports = router;
