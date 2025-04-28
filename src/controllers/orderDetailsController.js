@@ -20,6 +20,16 @@ const createDetailOrder = async (req, res) => {
     const { id, pedido_id, producto_id, cantidad } = req.body;
     const { data, error } = await sql.from("order_details").insert([{ id, pedido_id, producto_id, cantidad }]);
     if (error) return res.status(500).json({ error: error.message });
+
+    const { data: productData, error: productError } = await sql.from("products").select("stock").eq("id", producto_id).single();
+    if (productError) return res.status(500).json({ error: productError.message });
+
+    const nuevoStock = productData.stock - cantidad;
+    if (nuevoStock < 0) return res.status(400).json({ error: "No hay suficiente stock disponible" });
+
+    const { error: updateError } = await sql.from("products").update({ stock: nuevoStock }).eq("id", producto_id);
+    if (updateError) return res.status(500).json({ error: updateError.message });
+
     res.json(data);
     console.log("Successfully created detail pedido");
 };
