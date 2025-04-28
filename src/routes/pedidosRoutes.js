@@ -1,10 +1,20 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
-const { getPedidos, createPedido, getPedidosByMesa } = require("../controllers/pedidosController");
-const authMiddleware = require("../middlewares/authMiddleware"); // Importar el middleware
+const {
+    getPedidos,
+    createPedido,
+    getPedidosByMesa,
+    getActiveOrders,
+    updateOrderStatus,
+} = require('../controllers/pedidosController');
+const authMiddleware = require('../middlewares/authMiddleware'); // Importar el middleware
 
-router.get("/", authMiddleware, getPedidos);
-router.post("/", authMiddleware, createPedido);
-router.get("/mesa/numero/:numero_mesa", getPedidosByMesa);
+router.get('/', authMiddleware, getPedidos);
+router.post('/', authMiddleware, createPedido);
+router.get('/mesa/numero/:numero_mesa', getPedidosByMesa);
+
+// Chef routes
+router.get('/active', authMiddleware, getActiveOrders);
+router.put('/:id/status', authMiddleware, updateOrderStatus);
 
 module.exports = router;
