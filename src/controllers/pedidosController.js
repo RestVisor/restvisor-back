@@ -47,8 +47,14 @@ const getPedidosByMesa = async (req, res) => {
 };
 
 const createPedido = async (req, res) => {
-    const { id, tableNumber, status, created_at } = req.body;
-    const { data, error } = await sql.from("orders").insert([{ id, tableNumber, status, created_at }]);
+    const { id, tableNumber, status, created_at, active } = req.body;
+    const { data, error } = await sql.from("orders").insert([{
+        id,
+        tableNumber,
+        status,
+        created_at,
+        active: active !== undefined ? active : true // Por defecto, un nuevo pedido estará activo
+    }]);
     if (error) return res.status(500).json({ error: error.message });
     res.status(200).json(data);
     console.log("Successfully created pedido");
