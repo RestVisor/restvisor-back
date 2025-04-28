@@ -6,6 +6,7 @@ const pedidosRoutes = require('./pedidosRoutes');
 const mesasRoutes = require('./mesasRoutes');
 const productsRoutes = require('./productsRoutes');
 const orderDetailRoutes = require('./orderDetailsRoutes');
+const stockMovementsRoutes = require('./stockMovementsRoutes');
 
 // Error handling middleware for JWT validation errors
 router.use((err, req, res, next) => {
@@ -29,5 +30,6 @@ router.use('/orders', pedidosRoutes);
 router.use('/tables', mesasRoutes);
 router.use('/products', productsRoutes);
 router.use('/orderDetails', orderDetailRoutes);
+router.use('/stock-movements', stockMovementsRoutes);
 
 module.exports = router;
