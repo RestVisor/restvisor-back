@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { getMesas, updateMesa, createMesa, changeEstadoMesa } = require("../controllers/mesasController");
+const { getMesas, updateMesa, createMesa, changeEstadoMesa } = require("../controllers/tablesController");
 const authMiddleware = require("../middlewares/authMiddleware"); // Importar el middleware
 
 router.get("/", authMiddleware, getMesas);

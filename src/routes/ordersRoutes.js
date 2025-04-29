@@ -6,7 +6,7 @@ const {
     getPedidosByMesa,
     getActiveOrders,
     updateOrderStatus,
-} = require('../controllers/pedidosController');
+} = require('../controllers/ordersController');
 const authMiddleware = require('../middlewares/authMiddleware'); // Importar el middleware
 
 router.get('/', authMiddleware, getPedidos);
