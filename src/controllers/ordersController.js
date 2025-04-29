@@ -200,11 +200,83 @@ const trueToFalseOrders = async (req, res) => {
     }
 };
 
+const getActiveOrdersByMesa = async (req, res) => {
+    const { numero_mesa } = req.params;
+
+    try {
+        // Obtenemos todos los pedidos activos de la mesa
+        const { data: pedidos, error: pedidosError } = await sql
+            .from("orders")
+            .select(`
+                *,
+                order_details (
+                    *,
+                    products (*)
+                )
+            `)
+            .eq("tableNumber", numero_mesa)
+            .eq("active", true)
+            .order('created_at', { ascending: false });
+
+        if (pedidosError) throw pedidosError;
+
+        if (!pedidos || pedidos.length === 0) {
+            return res.status(404).json({
+                error: `No se encontraron pedidos activos para la mesa número ${numero_mesa}`
+            });
+        }
+
+        // Consolidamos todos los pedidos en uno solo
+        const pedidoConsolidado = {
+            id: pedidos[0].id, // Usamos el ID del primer pedido
+            tableNumber: numero_mesa,
+            status: pedidos[0].status,
+            created_at: pedidos[0].created_at,
+            active: true,
+            order_details: []
+        };
+
+        // Consolidamos todos los detalles de los pedidos
+        pedidos.forEach(pedido => {
+            if (pedido.order_details && pedido.order_details.length > 0) {
+                pedidoConsolidado.order_details.push(...pedido.order_details);
+            }
+        });
+
+        // Agrupamos los productos iguales y sumamos sus cantidades
+        const productosAgrupados = {};
+        pedidoConsolidado.order_details.forEach(detalle => {
+            const key = detalle.producto_id;
+            if (!productosAgrupados[key]) {
+                productosAgrupados[key] = {
+                    ...detalle,
+                    cantidad: 0
+                };
+            }
+            productosAgrupados[key].cantidad += detalle.cantidad;
+        });
+
+        // Convertimos el objeto de productos agrupados de vuelta a array
+        pedidoConsolidado.order_details = Object.values(productosAgrupados);
+
+        // Devolvemos directamente el pedido consolidado
+        res.json(pedidoConsolidado);
+
+    } catch (error) {
+        console.error('Error al obtener pedidos activos de la mesa:', error);
+        res.status(500).json({
+            error: 'Error interno del servidor',
+            message: 'No se pudieron obtener los pedidos activos de la mesa'
+        });
+    }
+};
+
 module.exports = {
     getPedidos,
     createPedido,
     getPedidosByMesa,
     getActiveOrders,
     updateOrderStatus,
+    getActiveOrdersByMesa,
     trueToFalseOrders
 };
