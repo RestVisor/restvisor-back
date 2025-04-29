@@ -139,10 +139,72 @@ const updateOrderStatus = async (req, res) => {
     }
 };
 
+// Actualiza los pedidos de la mesa a false
+const trueToFalseOrders = async (req, res) => {
+    const { numero_mesa } = req.body;
+
+    if (!numero_mesa) {
+        return res.status(400).json({
+            error: 'Datos incompletos',
+            message: 'El número de mesa es requerido'
+        });
+    }
+
+    try {
+        // Primero obtenemos el ID de la mesa usando el número
+        const { data: mesa, error: mesaError } = await sql
+            .from('tables')
+            .select('id')
+            .eq('numero', numero_mesa)
+            .single();
+
+        if (mesaError) throw mesaError;
+        if (!mesa) {
+            return res.status(404).json({
+                error: 'Mesa no encontrada',
+                message: `No se encontró una mesa con el número ${numero_mesa}`
+            });
+        }
+
+        // Actualizamos los pedidos a inactivos
+        const { data: pedidosActualizados, error: pedidosError } = await sql
+            .from('orders')
+            .update({ active: false })
+            .eq('tableNumber', numero_mesa)
+            .eq('active', true)
+            .select();
+
+        if (pedidosError) throw pedidosError;
+
+        // Actualizamos el estado de la mesa a disponible usando el ID
+        const { data: mesaActualizada, error: estadoError } = await sql
+            .from('tables')
+            .update({ estado: 'disponible' })
+            .eq('id', mesa.id)
+            .select()
+            .single();
+
+        if (estadoError) throw estadoError;
+
+        res.status(200).json({
+            message: 'Pedidos actualizados y mesa liberada exitosamente',
+            pedidosActualizados,
+            mesaActualizada
+        });
+    } catch (error) {
+        console.error('Error al actualizar pedidos y mesa:', error);
+        res.status(500).json({
+            error: 'Error interno del servidor',
+            message: 'No se pudieron actualizar los pedidos y el estado de la mesa'
+        });
+    }
+};
+
 module.exports = {
     getPedidos,
     createPedido,
     getPedidosByMesa,
     getActiveOrders,
     updateOrderStatus,
+    trueToFalseOrders
 };
