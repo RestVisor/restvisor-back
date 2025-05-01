@@ -271,6 +271,42 @@ const getActiveOrdersByMesa = async (req, res) => {
     }
 };
 
+const deleteOrder = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        // Primero eliminamos los detalles del pedido
+        const { error: detailsError } = await sql
+            .from('order_details')
+            .delete()
+            .eq('pedido_id', id);
+
+        if (detailsError) {
+            throw detailsError;
+        }
+
+        // Luego eliminamos el pedido
+        const { error: orderError } = await sql
+            .from('orders')
+            .delete()
+            .eq('id', id);
+
+        if (orderError) {
+            throw orderError;
+        }
+
+        res.status(200).json({
+            message: 'Pedido y sus detalles eliminados exitosamente'
+        });
+    } catch (error) {
+        console.error('Error al eliminar el pedido:', error);
+        res.status(500).json({
+            error: 'Error interno del servidor',
+            message: 'No se pudo eliminar el pedido y sus detalles'
+        });
+    }
+};
+
 module.exports = {
     getPedidos,
     createPedido,
@@ -278,5 +314,6 @@ module.exports = {
     getActiveOrders,
     updateOrderStatus,
     getActiveOrdersByMesa,
-    trueToFalseOrders
+    trueToFalseOrders,
+    deleteOrder
 };
