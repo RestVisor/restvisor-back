@@ -48,7 +48,7 @@ const getPedidosByMesa = async (req, res) => {
 };
 
 const createPedido = async (req, res) => {
-  const { id, tableNumber, status, created_at, active } = req.body;
+  const { id, tableNumber, status, created_at, active, details } = req.body;
   const { data, error } = await sql.from("orders").insert([
     {
       id,
@@ -56,6 +56,7 @@ const createPedido = async (req, res) => {
       status,
       created_at,
       active: active !== undefined ? active : true, // Por defecto, un nuevo pedido estará activo
+      details: details || null, // Incluimos el campo details, si no viene será null
     },
   ]);
   if (error) return res.status(500).json({ error: error.message });
@@ -234,6 +235,7 @@ const getActiveOrdersByMesa = async (req, res) => {
       status: pedidos[0].status,
       created_at: pedidos[0].created_at,
       active: true,
+      details: pedidos[0].details, // Incluimos el campo details
       order_details: [],
     };
 
