@@ -81,6 +81,7 @@ const getActiveOrders = async (req, res) => {
                 )
             `
       )
+      .neq("status", "entregado")
       .eq("active", true)
       .order("created_at", { ascending: true });
 
