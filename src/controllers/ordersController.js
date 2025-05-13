@@ -103,7 +103,7 @@ const updateOrderStatus = async (req, res) => {
 
   try {
     // Validate status
-    const validStatuses = ["pending", "en preparación", "listo", "entregado"];
+    const validStatuses = ["pending", "en preparación", "listo", "entregado", "pagado"];
     if (!validStatuses.includes(status)) {
       return res.status(400).json({
         error: "Invalid status value",
