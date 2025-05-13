@@ -169,7 +169,7 @@ const trueToFalseOrders = async (req, res) => {
     // Actualizamos los pedidos a inactivos
     const { data: pedidosActualizados, error: pedidosError } = await sql
       .from("orders")
-      .update({ active: false })
+      .update({ active: false, status: 'pagado' })
       .eq("tableNumber", numero_mesa)
       .eq("active", true)
       .select();
