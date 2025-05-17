@@ -322,17 +322,31 @@ const getTableHistoryForToday = async (req, res) => {
 
   try {
     const today = new Date();
-    const startDate = new Date(today.setHours(0, 0, 0, 0)).toISOString();
-    const endDate = new Date(today.setHours(23, 59, 59, 999)).toISOString();
+    const startDate = new Date(new Date().setHours(0, 0, 0, 0)).toISOString();
+    const endDate = new Date(new Date().setHours(23, 59, 59, 999)).toISOString();
 
-    const { data: orders, error: historyError } = await sql
+    console.log(`[History] Fetching for table: ${numero_mesa}, from: ${startDate}, to: ${endDate}`);
+
+    const { data: ordersData, error: historyError } = await sql
       .from("orders")
       .select(
         `
-          *,
+          id,
+          tableNumber,
+          status,
+          created_at,
+          active,
+          details,
           order_details (
-            *,
-            products (*)
+            id,
+            pedido_id,
+            producto_id,
+            cantidad,
+            products (
+                id,
+                name,
+                price
+            )
           )
         `
       )
@@ -342,27 +356,43 @@ const getTableHistoryForToday = async (req, res) => {
       .order("created_at", { ascending: false });
 
     if (historyError) {
-      console.error("Error fetching table history:", historyError);
+      console.error(`[History] Supabase error for table ${numero_mesa}:`, historyError);
       return res.status(500).json({
         error: "Error interno del servidor",
         message: "No se pudo obtener el historial de pedidos de la mesa",
       });
     }
 
-    if (!orders || orders.length === 0) {
-      return res.status(404).json({
+    console.log(`[History] Raw orders from Supabase for table ${numero_mesa}:`, JSON.stringify(ordersData, null, 2));
+
+    if (!ordersData || ordersData.length === 0) {
+      console.log(`[History] No orders found for table ${numero_mesa} for today.`);
+      return res.status(200).json({ // Return 200 with empty array as per frontend expectation for 404s
         message: `No se encontró historial de pedidos para la mesa ${numero_mesa} para el día de hoy.`,
+        tableNumber: numero_mesa,
         orders: [],
       });
     }
 
+    // Ensure order_details and products are correctly structured
+    const formattedOrders = ordersData.map(order => ({
+      ...order,
+      orderDetails: order.order_details ? order.order_details.map(detail => ({
+        ...detail,
+        // Ensure product is nested if products table was joined correctly
+        product: detail.products ? detail.products : { name: 'Unknown Product', price: 0 } 
+      })) : []
+    }));
+
+    console.log(`[History] Formatted orders for table ${numero_mesa}:`, JSON.stringify(formattedOrders, null, 2));
+
     res.status(200).json({
       message: "Historial de pedidos encontrado",
       tableNumber: numero_mesa,
-      orders,
+      orders: formattedOrders, // Send formatted orders
     });
   } catch (error) {
-    console.error("Error en getTableHistoryForToday:", error);
+    console.error(`[History] Unexpected error in getTableHistoryForToday for table ${numero_mesa}:`, error);
     res.status(500).json({
       error: "Error interno del servidor",
       message: "Ocurrió un error inesperado al obtener el historial.",
