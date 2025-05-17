@@ -310,6 +310,66 @@ const deleteOrder = async (req, res) => {
   }
 };
 
+// Get order history for a table for the current day
+const getTableHistoryForToday = async (req, res) => {
+  const { numero_mesa } = req.params;
+
+  if (!numero_mesa) {
+    return res.status(400).json({
+      error: "Número de mesa es requerido",
+    });
+  }
+
+  try {
+    const today = new Date();
+    const startDate = new Date(today.setHours(0, 0, 0, 0)).toISOString();
+    const endDate = new Date(today.setHours(23, 59, 59, 999)).toISOString();
+
+    const { data: orders, error: historyError } = await sql
+      .from("orders")
+      .select(
+        `
+          *,
+          order_details (
+            *,
+            products (*)
+          )
+        `
+      )
+      .eq("tableNumber", numero_mesa)
+      .gte("created_at", startDate)
+      .lte("created_at", endDate)
+      .order("created_at", { ascending: false });
+
+    if (historyError) {
+      console.error("Error fetching table history:", historyError);
+      return res.status(500).json({
+        error: "Error interno del servidor",
+        message: "No se pudo obtener el historial de pedidos de la mesa",
+      });
+    }
+
+    if (!orders || orders.length === 0) {
+      return res.status(404).json({
+        message: `No se encontró historial de pedidos para la mesa ${numero_mesa} para el día de hoy.`,
+        orders: [],
+      });
+    }
+
+    res.status(200).json({
+      message: "Historial de pedidos encontrado",
+      tableNumber: numero_mesa,
+      orders,
+    });
+  } catch (error) {
+    console.error("Error en getTableHistoryForToday:", error);
+    res.status(500).json({
+      error: "Error interno del servidor",
+      message: "Ocurrió un error inesperado al obtener el historial.",
+    });
+  }
+};
+
 module.exports = {
   getPedidos,
   createPedido,
@@ -319,4 +379,5 @@ module.exports = {
   getActiveOrdersByMesa,
   trueToFalseOrders,
   deleteOrder,
+  getTableHistoryForToday,
 };

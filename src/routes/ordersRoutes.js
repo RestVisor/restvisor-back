@@ -8,7 +8,8 @@ const {
     updateOrderStatus,
     getActiveOrdersByMesa,
     trueToFalseOrders,
-    deleteOrder
+    deleteOrder,
+    getTableHistoryForToday
 } = require('../controllers/ordersController');
 const authMiddleware = require('../middlewares/authMiddleware');
 
@@ -18,6 +19,7 @@ router.post('/', authMiddleware, createPedido);
 router.delete('/:id', authMiddleware, deleteOrder);
 router.get('/mesa/numero/:numero_mesa', authMiddleware, getPedidosByMesa);
 router.get('/mesa/:numero_mesa/activos', authMiddleware, getActiveOrdersByMesa);
+router.get('/mesa/:numero_mesa/historial-hoy', authMiddleware, getTableHistoryForToday);
 router.post('/desactivar', authMiddleware, trueToFalseOrders);
 
 // Rutas para el chef
