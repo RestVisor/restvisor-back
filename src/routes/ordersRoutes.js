@@ -9,12 +9,14 @@ const {
     getActiveOrdersByMesa,
     trueToFalseOrders,
     deleteOrder,
-    getTableHistoryForToday
+    getTableHistoryForToday,
+    getAllOrdersWithDetails
 } = require('../controllers/ordersController');
 const authMiddleware = require('../middlewares/authMiddleware');
 
 // Rutas para pedidos
 router.get('/', authMiddleware, getPedidos);
+router.get('/details', authMiddleware, getAllOrdersWithDetails);
 router.post('/', authMiddleware, createPedido);
 router.delete('/:id', authMiddleware, deleteOrder);
 router.get('/mesa/numero/:numero_mesa', authMiddleware, getPedidosByMesa);

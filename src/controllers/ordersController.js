@@ -400,6 +400,74 @@ const getTableHistoryForToday = async (req, res) => {
   }
 };
 
+// Get all orders with their details for admin dashboard
+const getAllOrdersWithDetails = async (req, res) => {
+  try {
+    // Get query parameters for optional filtering
+    const { status, tableNumber, startDate, endDate } = req.query;
+    
+    console.log('Filter parameters received:', { 
+      status, 
+      tableNumber, 
+      startDate, 
+      endDate 
+    });
+    
+    // Build query with filters
+    let query = sql
+      .from("orders")
+      .select(
+        `
+        *,
+        order_details (
+          *,
+          products (*)
+        )
+        `
+      )
+      .order("created_at", { ascending: false });
+    
+    // Apply filters if provided
+    if (status) {
+      console.log(`Applying status filter: "${status}"`);
+      query = query.eq("status", status);
+    }
+    
+    if (tableNumber) {
+      console.log(`Applying table filter: ${tableNumber}`);
+      query = query.eq("tableNumber", tableNumber);
+    }
+    
+    if (startDate) {
+      console.log(`Applying start date filter: ${startDate}`);
+      query = query.gte("created_at", new Date(startDate).toISOString());
+    }
+    
+    if (endDate) {
+      console.log(`Applying end date filter: ${endDate}`);
+      query = query.lte("created_at", new Date(endDate).toISOString());
+    }
+    
+    // Execute the query
+    const { data, error } = await query;
+    
+    if (error) {
+      console.error('Database query error:', error);
+      throw error;
+    }
+    
+    console.log(`Found ${data?.length || 0} orders matching filters`);
+    
+    res.status(200).json(data);
+  } catch (error) {
+    console.error("Error fetching orders with details:", error);
+    res.status(500).json({
+      error: "Internal server error",
+      message: "Failed to fetch orders",
+    });
+  }
+};
+
 module.exports = {
   getPedidos,
   createPedido,
@@ -410,4 +478,5 @@ module.exports = {
   trueToFalseOrders,
   deleteOrder,
   getTableHistoryForToday,
+  getAllOrdersWithDetails,
 };
